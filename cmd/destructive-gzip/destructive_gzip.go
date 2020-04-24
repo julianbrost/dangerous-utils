@@ -45,7 +45,12 @@ func DestructiveGzip(args *Args) error {
 		sourceEnd = sourceStart + int64(args.Max)
 	}
 	if !args.Final {
+		// round down to block boundary to allow hole punching
 		sourceEnd = sourceEnd / blockSize * blockSize
+	}
+	if sourceEnd <= sourceStart {
+		// the file is not long enough to perform any other operation
+		return nil
 	}
 
 	destinationWriter := gzip.NewWriter(destinationFile)

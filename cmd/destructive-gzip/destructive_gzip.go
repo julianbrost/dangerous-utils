@@ -41,7 +41,7 @@ func DestructiveGzip(args *Args) error {
 
 	sourceStart, err := sourceFile.Seek(0, SeekData)
 	sourceEnd := sourceSize
-	if args.Max > 0 && sourceEnd-sourceStart > int64(args.Max) {
+	if !args.Final && args.Max > 0 && sourceEnd-sourceStart > int64(args.Max) {
 		sourceEnd = sourceStart + int64(args.Max)
 	}
 	if !args.Final {

@@ -124,9 +124,11 @@ func TestTooSmallBlockSize(t *testing.T) {
 	totalSize := (blockSize + 1) * 8
 	src := testutils.MakeRandomTestFile(t, totalSize, nil)
 	destFile := testutils.MakeEmptyTestFile(t)
+	dest := destFile.Name()
+	destFile.Close()
 	args := Args{
 		Source:      src,
-		Destination: destFile.Name(),
+		Destination: dest,
 		Max:         uint64(blockSize),
 	}
 	var stat1, stat2 syscall.Stat_t
@@ -139,7 +141,7 @@ func TestTooSmallBlockSize(t *testing.T) {
 	if stat1.Blocks != stat2.Blocks {
 		t.Error("source file shrank even though it should not")
 	}
-	destStat, err := os.Stat(destFile.Name())
+	destStat, err := os.Stat(dest)
 	testutils.AssertNoErr(t, err, "stat on destination file")
 	if destStat.Size() > 0 {
 		t.Error("destination file size is not 0")
@@ -152,6 +154,7 @@ func gzipFileToHash(t *testing.T, file *os.File) *testutils.CountingHashWriter {
 	hash := testutils.NewCountingHashWriter()
 	_, err = io.Copy(hash, gzipReader)
 	testutils.AssertNoErr(t, err, "reading gzip returned an error")
+	_ = file.Close()
 	return hash
 }
 
